@@ -1,5 +1,5 @@
 #include "forget_data.h"
-#if FUSE_USE_VERSION > 28
+#if FUSE_USE_VERSION > 28 && !__APPLE__
 
 namespace NodeFuse {
 
@@ -34,14 +34,14 @@ namespace NodeFuse {
 	ForgetData::ForgetData() : ObjectWrap() {}
 	ForgetData::~ForgetData() {}
 	void ForgetData::GetIno(v8::Local<v8::String> property,
-                const Nan::PropertyCallbackInfo<v8::Value>& info) 
+                const Nan::PropertyCallbackInfo<v8::Value>& info)
 	{
 		ForgetData *forget_data = ObjectWrap::Unwrap<ForgetData>(info.This());
 		info.GetReturnValue().Set( Nan::New<Integer>(static_cast<uint32_t>(forget_data->fd->ino)));
 	}
 
 	void ForgetData::GetNLookup(v8::Local<v8::String> property,
-                const Nan::PropertyCallbackInfo<v8::Value>& info) 
+                const Nan::PropertyCallbackInfo<v8::Value>& info)
 	{
 		ForgetData *forget_data = ObjectWrap::Unwrap<ForgetData>(info.This());
 		info.GetReturnValue().Set( Nan::New<Integer>( static_cast<uint32_t>(forget_data->fd->nlookup)) );

@@ -35,7 +35,7 @@ namespace NodeFuse {
     //   unsigned long nlookup;
     //   #ifdef __APPLE__
     //   uint32_t position;
-    //   #endif 
+    //   #endif
     // };
 
 
@@ -77,7 +77,7 @@ namespace NodeFuse {
     static struct fuse_lowlevel_ops fuse_ops;
 
     static mpsc_queue_t<struct fuse_cmd> ring_buffer(__RING_SIZE__);
-    
+
     void FileSystem::DispatchOp(uv_async_t* handle, int status)
     {
     //     struct vrt_fuse_cmd_value op; //(struct fuse_cmd *)malloc(sizeof(struct fuse_cmd));
@@ -197,23 +197,23 @@ namespace NodeFuse {
                 case _FUSE_OPS_SETLK_:
                     break;
                 case _FUSE_OPS_MULTI_FORGET_:
-                    #if FUSE_USE_VERSION > 28
-                    RemoteMultiForget(value->req, value->size, static_cast<struct fuse_forget_data *>(value->userdata) );
+                    #if FUSE_USE_VERSION > 28 && !__APPLE__
+                      RemoteMultiForget(value->req, value->size, static_cast<struct fuse_forget_data *>(value->userdata) );
                     #endif
                     break;
 
-                case _FUSE_OPS_BMAP_:                
+                case _FUSE_OPS_BMAP_:
                     break;
             }
         }
-        
+
     }
 
 
     void FileSystem::Initialize(Handle<Object> target) {
 
         // ring_buffer =  vrt_queue_new("queue", vrt_fuse_cmd_type(), __RING_SIZE__);
-        
+
         // producers = (struct vrt_producer **) malloc(sizeof(struct vrt_producer *) * 1);
         // int i;
         // for( i = 0; i < 1; ++i){
@@ -250,8 +250,8 @@ namespace NodeFuse {
         fuse_ops.releasedir = FileSystem::ReleaseDir;
         fuse_ops.fsyncdir   = FileSystem::FSyncDir;
         fuse_ops.statfs     = FileSystem::StatFs;
-        #if FUSE_USE_VERSION > 28
-        fuse_ops.forget_multi = FileSystem::MultiForget; 
+        #if FUSE_USE_VERSION > 28 && !__APPLE__
+        fuse_ops.forget_multi = FileSystem::MultiForget;
         #endif
         // fuse_ops.setxattr   = FileSystem::SetXAttr;
         // fuse_ops.getxattr   = FileSystem::GetXAttr;
@@ -367,7 +367,7 @@ namespace NodeFuse {
         }
 
         value->op = _FUSE_OPS_DESTROY_;
-        value->userdata =  userdata;        
+        value->userdata =  userdata;
 
         ring_buffer.producer_publish(idx);//(producers[  0/*_FUSE_OPS_DESTROY_*/]);
         // uv_async_send(&uv_async_handle);
@@ -653,7 +653,7 @@ namespace NodeFuse {
         Local<Number> inode = Nan::New<Number>(ino);
 
         struct stat *attr = (struct stat*) malloc(sizeof(struct stat));
-        memcpy( (void*) attr, (const void *) &attr_, sizeof(struct stat));         
+        memcpy( (void*) attr, (const void *) &attr_, sizeof(struct stat));
         Local<Object> attrs = GetAttrsToBeSet(to_set, attr)->ToObject();
         // free(attr);
 
@@ -1064,7 +1064,7 @@ namespace NodeFuse {
     void FileSystem::Link(fuse_req_t req,
                           fuse_ino_t ino,
                           fuse_ino_t newparent,
-                          const char* newname) 
+                          const char* newname)
     {
         struct fuse_cmd *value;
         int64_t idx;
@@ -1262,7 +1262,7 @@ namespace NodeFuse {
             return;
         }
 
-        
+
 
         value->op = _FUSE_OPS_WRITE_;
         value->req = req;
@@ -1301,7 +1301,7 @@ namespace NodeFuse {
         Local<Object> buffer = Nan::NewBuffer((char*) buf, size).ToLocalChecked();
 
         FileInfo* info = new FileInfo();
-        
+
         info->fi = (struct fuse_file_info*) malloc(sizeof(struct fuse_file_info) );
         memcpy( (void*) info->fi , &fi, sizeof(struct fuse_file_info));
         Local<Object> infoObj = Nan::NewInstance(Nan::New<Function>(info->constructor)).ToLocalChecked();//->GetFunction()->NewInstance();
@@ -1365,7 +1365,7 @@ namespace NodeFuse {
         FileInfo* info = new FileInfo();
         info->fi = (struct fuse_file_info*) malloc(sizeof(struct fuse_file_info) );
         memcpy( (void*) info->fi , &fi, sizeof(struct fuse_file_info));
-        
+
         Local<Object> infoObj = Nan::NewInstance(Nan::New<Function>(info->constructor)).ToLocalChecked();//->GetFunction()->NewInstance();
         info->Wrap(infoObj);
 
@@ -1397,7 +1397,7 @@ namespace NodeFuse {
             return;
         }
 
-        
+
         value->op = _FUSE_OPS_RELEASE_;
         value->req = req;
         value->ino = ino;
@@ -1649,7 +1649,7 @@ namespace NodeFuse {
             return;
         }
 
-        
+
 
         value->op = _FUSE_OPS_RELEASEDIR_;
         value->req = req;
@@ -1712,7 +1712,7 @@ namespace NodeFuse {
             return;
         }
 
-        
+
         value->op = _FUSE_OPS_FSYNCDIR_;
         value->req = req;
         value->ino = ino;
@@ -2343,5 +2343,3 @@ namespace NodeFuse {
         return &fuse_ops;
     }
 }
-
-
