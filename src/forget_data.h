@@ -5,7 +5,7 @@
 #ifndef SRC_FORGET_DATA_H_
 #define SRC_FORGET_DATA_H_
 
-#if FUSE_USE_VERSION > 28 
+#if FUSE_VERSION > 28 
 #include "node_fuse.h"
 
 namespace NodeFuse {
@@ -31,6 +31,6 @@ namespace NodeFuse {
 } //namespace NodeFuse
 
 
-#endif // if FUSE_USE_VERSION
+#endif // if FUSE_VERSION
 
 #endif  // ifdef SRC_FILE_INFO_H
