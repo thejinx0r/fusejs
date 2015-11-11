@@ -18,6 +18,19 @@ var next_largest_inode = 2;
 // this will be set later
 var loopbackFolder = ""; 
 
+function parseFileInfoReadWrite(fileInfo){
+    if(fileInfo.rdonly){
+        return 'r';
+    }
+    if(fileInfo.wronly){
+        return 'w';
+    }
+    if(fileInfo.rdwr){
+        return 'r+';
+    }
+
+}
+
 class LoopbackFS extends FileSystem {
     lookup(context, parentInode, name, reply){
 
@@ -143,17 +156,28 @@ class LoopbackFS extends FileSystem {
     }
 
     open(context, inode, fileInfo, reply){
-        if(inode == 3)
-        {   
-            reply.open(fileInfo);       
+        const filePath = inodeToPath.has(inode);
+        if(file){
+            const flag = parseFileInfoReadWrite(fileInfo);
+
+            fs.open(filePath, flag, function(err,fd){
+                if(err){
+                    reply.err(err.code);
+                    return;
+                }
+
+                fileInfo.file_handle = fd;
+                reply.open(fileInfo);
+                return;
+            })
+
             return;
-        }
-        if(inode < 3){
-            reply.err(PosixError.EISDIR);
-            return;
+
         }
 
         reply.err(PosixError.ENOENT);
+
+        return;
 
     }
 
