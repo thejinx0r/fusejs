@@ -41,8 +41,8 @@ namespace NodeFuse {
         Local<Object> obj = value->ToObject();
         entry->ino = obj->Get(Nan::New<String>("inode").ToLocalChecked())->IntegerValue();
         entry->generation = obj->Get(Nan::New<String>("generation").ToLocalChecked())->IntegerValue();
-        entry->attr_timeout = obj->Get(Nan::New<String>("attr_timeout").ToLocalChecked())->NumberValue();
-        entry->entry_timeout = obj->Get(Nan::New<String>("entry_timeout").ToLocalChecked())->NumberValue();
+        entry->attr_timeout = obj->Get(Nan::New<String>("attr_timeout").ToLocalChecked())->IntegerValue();
+        entry->entry_timeout = obj->Get(Nan::New<String>("entry_timeout").ToLocalChecked())->IntegerValue();
 
         //struct stat statbuf;
         ret = ObjectToStat(obj->Get(Nan::New<String>("attr").ToLocalChecked()), &entry->attr);
@@ -66,7 +66,7 @@ namespace NodeFuse {
         statbuf->st_uid = obj->Get(Nan::New<String>("uid").ToLocalChecked())->IntegerValue();
         statbuf->st_gid = obj->Get(Nan::New<String>("gid").ToLocalChecked())->IntegerValue();
         statbuf->st_rdev = obj->Get(Nan::New<String>("rdev").ToLocalChecked())->IntegerValue();
-        statbuf->st_size = obj->Get(Nan::New<String>("size").ToLocalChecked())->NumberValue();
+        statbuf->st_size = obj->Get(Nan::New<String>("size").ToLocalChecked())->IntegerValue();
         statbuf->st_blksize = obj->Get(Nan::New<String>("blksize").ToLocalChecked())->IntegerValue();
         statbuf->st_blocks = obj->Get(Nan::New<String>("blocks").ToLocalChecked())->IntegerValue();
         statbuf->st_atime = obj->Get(Nan::New<String>("atime").ToLocalChecked())->IntegerValue();
@@ -83,19 +83,19 @@ namespace NodeFuse {
 
         Local<Object> obj = value->ToObject();
 
-        statbuf->f_bsize = obj->Get(Nan::New<String>("bsize").ToLocalChecked())->NumberValue();
-        statbuf->f_frsize = obj->Get(Nan::New<String>("blocks").ToLocalChecked())->NumberValue();
+        statbuf->f_bsize = obj->Get(Nan::New<String>("bsize").ToLocalChecked())->IntegerValue();
+        statbuf->f_frsize = obj->Get(Nan::New<String>("blocks").ToLocalChecked())->IntegerValue();
 
         statbuf->f_blocks = obj->Get(Nan::New<String>("blocks").ToLocalChecked())->IntegerValue();
         statbuf->f_bfree = obj->Get(Nan::New<String>("bfree").ToLocalChecked())->IntegerValue();
         statbuf->f_bavail = obj->Get(Nan::New<String>("bavail").ToLocalChecked())->IntegerValue();
         statbuf->f_files = obj->Get(Nan::New<String>("files").ToLocalChecked())->IntegerValue();
         statbuf->f_ffree = obj->Get(Nan::New<String>("ffree").ToLocalChecked())->IntegerValue();
-        statbuf->f_favail = obj->Get(Nan::New<String>("favail").ToLocalChecked())->NumberValue();
+        statbuf->f_favail = obj->Get(Nan::New<String>("favail").ToLocalChecked())->IntegerValue();
 
-        statbuf->f_fsid = obj->Get(Nan::New<String>("fsid").ToLocalChecked())->NumberValue();
-        statbuf->f_flag = obj->Get(Nan::New<String>("flag").ToLocalChecked())->NumberValue();
-        statbuf->f_namemax = obj->Get(Nan::New<String>("namemax").ToLocalChecked())->NumberValue();
+        statbuf->f_fsid = obj->Get(Nan::New<String>("fsid").ToLocalChecked())->IntegerValue();
+        statbuf->f_flag = obj->Get(Nan::New<String>("flag").ToLocalChecked())->IntegerValue();
+        statbuf->f_namemax = obj->Get(Nan::New<String>("namemax").ToLocalChecked())->IntegerValue();
 
         return 0;
     }
@@ -132,7 +132,7 @@ namespace NodeFuse {
         }
 
         if (to_set & FUSE_SET_ATTR_SIZE) {
-            attrs->Set( Nan::New<String>("size").ToLocalChecked(), Nan::New<Number>(stat->st_size));
+            attrs->Set( Nan::New<String>("size").ToLocalChecked(), Nan::New<Number>((double)stat->st_size));
         }
 
         if (to_set & FUSE_SET_ATTR_ATIME) {
