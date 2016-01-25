@@ -32,6 +32,7 @@ namespace NodeFuse {
             static NAN_METHOD(BMap);
             static NAN_METHOD(AddDirEntry);
             static NAN_METHOD(None);
+            static NAN_METHOD(PopBuffer);
             static NAN_GETTER(hasReplied);
 
 

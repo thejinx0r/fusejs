@@ -39,6 +39,7 @@ namespace NodeFuse {
         Nan::SetPrototypeMethod(tpl, "create", Reply::Create);
         Nan::SetPrototypeMethod(tpl, "xattr", Reply::XAttributes);
         Nan::SetPrototypeMethod(tpl, "addDirEntry", Reply::AddDirEntry);
+        Nan::SetPrototypeMethod(tpl, "popBuffer", Reply::PopBuffer);
         Nan::SetPrototypeMethod(tpl, "none", Reply::None);
         Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("hasReplied").ToLocalChecked(), Reply::hasReplied);
         constructor.Reset(tpl->GetFunction());
@@ -220,6 +221,20 @@ namespace NodeFuse {
         }
 
     }
+    
+    void Reply::PopBuffer(const Nan::FunctionCallbackInfo<v8::Value>& args){
+        /* 
+        Have nodejs takeover the ownership of the buffer and set the reply's buffer to null.
+        This is useful for caching directory entries
+        */ 
+        Nan::HandleScope scope;
+        Local<Object> replyObj = args.This();
+        Reply* reply = Nan::ObjectWrap::Unwrap<Reply>(replyObj);
+
+        Local<Object> buffer = Nan::NewBuffer(reply->dentry_buffer, reply->dentry_acc_size).ToLocalChecked();                
+        reply->dentry_buffer = nullptr;
+        args.GetReturnValue().Set( buffer );
+    }   
 
     void Reply::Buffer(const Nan::FunctionCallbackInfo<v8::Value>& args){
         Nan::HandleScope scope;
